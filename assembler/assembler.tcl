@@ -6,8 +6,6 @@ set input [open $name r]
 set data [read $input]
 close $input
 
-puts $data
-
 # store a dictionary of labels
 set address 0
 foreach word $data {
@@ -27,9 +25,6 @@ foreach word $data {
 }
 
 # convert references to the labels its address values
-puts [parray labels]
-puts "pass1: $pass1"
-
 foreach word $pass1 {
 	set flag [regexp {^[A-Za-z]+[0-9]*$} $word]
 	if $flag {
@@ -39,8 +34,6 @@ foreach word $pass1 {
 	}
 	lappend pass2 $word
 }
-
-puts "pass2: $pass2"
 
 # convert string literals
 foreach word $pass2 {
@@ -54,14 +47,16 @@ foreach word $pass2 {
 	lappend pass3 $word
 }
 
-puts "pass3: $pass3"
-
 set data $pass3
 
 # write parsed assembly content to file
-set output [open parsed.asm w]
-foreach word $data {puts -nonewline $output "$word "}
+set name [file rootname [lindex $argv 0]]
+set output [open "$name.num" w]
+foreach word $data {puts $output $word} ;# REMOVE NONEWLINE?
 close $output
 
-# convert parsed assembly to binary
-source parsed-to-binary.tcl
+puts "Assembled decimal file"
+
+# convert parsed assembly to binary and hexadecimal formats
+source to-bin.tcl ;# for C virtual machine
+source to-hex.tcl ;# for Verilog simulation
