@@ -1,0 +1,67 @@
+#!/usr/bin/env tclsh
+
+# read file
+set name [lindex $argv 0]
+set input [open $name r]
+set data [read $input]
+close $input
+
+puts $data
+
+# store a dictionary of labels
+set address 0
+foreach word $data {
+	if {$word eq "next"} {
+		incr address
+		lappend pass1 $address
+		continue;
+	}
+	set flag [regexp {^[A-Za-z]+[0-9]*:$} $word]
+	if $flag {
+		set name [string range $word 0 end-1]
+		set labels($name) $address
+		continue;
+	}
+	lappend pass1 $word
+	incr address
+}
+
+# convert references to the labels its address values
+puts [parray labels]
+puts "pass1: $pass1"
+
+foreach word $pass1 {
+	set flag [regexp {^[A-Za-z]+[0-9]*$} $word]
+	if $flag {
+		set address $labels($word)
+		lappend pass2 $address
+		continue;
+	}
+	lappend pass2 $word
+}
+
+puts "pass2: $pass2"
+
+# convert string literals
+foreach word $pass2 {
+	set flag [regexp {^'\S'$} $word]
+	if $flag {
+		set char [string index $word 1]
+		set value [scan $char %c]
+		lappend pass3 $value
+		continue;
+	}
+	lappend pass3 $word
+}
+
+puts "pass3: $pass3"
+
+set data $pass3
+
+# write parsed assembly content to file
+set output [open parsed.asm w]
+foreach word $data {puts -nonewline $output "$word "}
+close $output
+
+# convert parsed assembly to binary
+source parsed-to-binary.tcl
