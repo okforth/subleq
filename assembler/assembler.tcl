@@ -6,6 +6,20 @@ set input [open $name r]
 set data [read $input]
 close $input
 
+# split by lines
+set data [split $data \n]
+
+# filter out all ";" comments
+set data [lmap line $data {lindex [regexp -inline {^[^;]*} $line] 0}]
+
+# remove all empty lines
+set data [lsearch -all -inline -not -exact $data {}]
+
+# join all words as a single list
+set data [join $data]
+
+puts $data
+
 # store a dictionary of labels
 set address 0
 foreach word $data {

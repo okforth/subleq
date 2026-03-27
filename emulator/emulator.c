@@ -13,10 +13,22 @@ int status(uint16_t pc, int16_t a, int16_t b, int16_t c, int16_t ma, int16_t mb)
 
 int16_t memory[SIZE];
 
-int main() {
-	FILE* fptr = fopen("out.bin", "r");
-	if (fptr == NULL) return 1;
+int main(int argc, char *argv[]) {
 
+	// check if <filename> was provided
+	if (argc < 2) {
+		printf("Usage: %s <filename>\n", argv[0]);
+		return 1;
+	}
+
+	// open <filename>
+	FILE* fptr = fopen(argv[1], "r");
+	if (fptr == NULL) {
+		perror("Error opening binary file");
+		return 1;
+	}
+
+	// load content to memory array
 	uint16_t i = 0;
 	while (fread(&memory[i], sizeof(int16_t), 1, fptr)) {
 		// convert from big-endian to little-endian
@@ -31,6 +43,8 @@ int main() {
 	int count = 0;
 
 	while (count++ < 1000) {
+		getchar();
+
 		int16_t a = memory[pc];
 		int16_t b = memory[pc + 1];
 		int16_t c = memory[pc + 2];
@@ -52,6 +66,10 @@ int main() {
 		}
 
 		memory[b] -= memory[a];
+
+		status(pc, a, b, c, memory[a], memory[b]);
+		hexdump(memory, 128);
+
 		if (memory[b] <= 0) {
 			pc = (uint16_t) c;
 			continue;
