@@ -1,16 +1,14 @@
 `timescale 1ns/1ps
 
 module tb_memory;
-	reg clk;
-	reg write;
-	reg [15:0] addr;
+	reg clock;
+	reg write_enable;
 	reg [15:0] data_in;
 	wire [15:0] data_out;
 
 	memory uut (
-		.clk(clk),
-		.write(write),
-		.addr(addr),
+		.clock(clock),
+		.write_enable(write_enable),
 		.data_in(data_in),
 		.data_out(data_out)
 	 );
@@ -18,22 +16,23 @@ module tb_memory;
 	// clock generation (10ns period)
 	always #5 clk = ~clk;
 
-	task write_test(input [15:0] a, input [15:0] x);
+	task write_test(input [15:0] addr, input [15:0] data);
 	begin
 		write = 1;
-		addr = a;
-		data_in = x;
-		$display("[%h] <= %h", addr, data_in);
-		@(posedge clk);
+		data_in = addr;
+		@(posedge clock);
+		data_in = data;
+		@(posedge clock);
+		$display("[%h] <= %h", addr, data);
 	end
 	endtask
 
-	task read_test(input [15:0] a);
+	task read_test(input [15:0] addr);
 	begin
 		write = 0;
-		addr = a;
-		@(posedge clk);
-		@(posedge clk);
+		data_in = addr;
+		@(posedge clock);
+		@(posedge clock);
 		$display("[%h] => %h", addr, data_out);
 	end
 	endtask
