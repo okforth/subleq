@@ -1,0 +1,100 @@
+CPU				RAM
+===============================================================
+clock: 0
+1 -> read_latch			noop
+pc [7:0] -> data_out		
+
+clock: 1
+0 -> read_latch
+pc [15:8] -> data_out		data_out -> addr[7:0]
+
+clock: 2
+noop				data_out -> addr[15:0]
+				data_in <- mem[addr][7:0]
+
+clock: 3
+regA [7:0] <- data_in		data_in <- mem[addr][15:8]
+
+clock: 4
+regA [15:8] <- data_in		noop
+1 -> read_latch
+pc+1 [7:0] -> data_out
+
+clock: 5
+0 -> read_latch
+pc+1 [15:8] -> data_out		data_out -> addr[7:0]
+
+clock: 6
+noop				data_out -> addr[15:0]
+				data_in <- mem[addr][7:0]
+
+clock: 7
+regB [7:0] <- data_in		data_in <- mem[addr][15:8]
+
+clock: 8
+regB [15:8] <- data_in		noop                              
+1 -> read_latch
+pc+2 [7:0] -> data_out
+
+clock: 9
+0 -> read_latch			data_out -> addr[7:0]
+pc+2 [15:8] -> data_out
+
+clock: 10
+noop				data_out -> addr[15:0]
+				data_in <- mem[addr][7:0]
+clock: 11
+regC [7:0] <- data_in		data_in <- mem[addr][15:8]
+
+clock: 12
+regC [15:8] <- data_in		noop
+1 -> read_latch
+regA [7:0] -> data_out
+
+clock: 13
+0 -> read_latch			data_out -> addr[7:0]
+regA [15:8] -> data_out
+
+clock: 14
+noop				data_out -> addr[15:0]
+				data_in <- mem[addr][7:0]
+
+clock: 15
+valA [7:0] <- data_in		data_in <- mem[addr][15:8]
+
+clock: 16
+valA [15:8] <- data_in		noop
+1 -> read_latch
+regB [7:0] -> data_out
+
+clock: 17
+0 -> read_latch			data_out -> addr[7:0]
+regB [15:8] -> data_out
+
+clock: 18
+noop				data_out -> addr[15:8]
+				data_in <- mem[addr][7:0]
+
+clock: 19
+valB [7:0] <- data_in		data_in <- mem[addr][15:8]
+
+clock: 20
+valB [15:8] <- data_in		noop
+1 -> write_latch
+regB [7:0] -> data_out
+
+clock: 21
+0 -> write_latch		data_out -> addr[7:0]
+regB [15:8] -> data_out
+
+clock: 22
+(valB-valA) [7:0] -> data_out	data_out -> addr[15:8]
+
+clock: 23
+(valB-valA) [15:8] -> data_out	data_out -> val[7:0]
+
+clock: 24
+1 -> read_latch			data_out -> val[15:8]
+pc [7:0] -> data_out		mem[addr] <- val
+
+continue...
